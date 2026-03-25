@@ -1,0 +1,1301 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nomos — Estrutura de Captação para Advocacia</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400;1,600&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --night:#090C15;
+  --night2:#0D1020;
+  --night3:#121628;
+  --night4:#181D30;
+  --gold:#C9A84C;
+  --gold2:#E2C06A;
+  --gold3:#F0D48A;
+  --gold-dim:rgba(201,168,76,.12);
+  --gold-border:rgba(201,168,76,.22);
+  --ice:#E8EDF5;
+  --ice2:#C8D2E4;
+  --muted:rgba(232,237,245,.48);
+  --muted2:rgba(232,237,245,.25);
+  --muted3:rgba(232,237,245,.1);
+  --border:rgba(232,237,245,.06);
+  --border2:rgba(232,237,245,.1);
+  --red:#E05555;
+  --red-dim:rgba(224,85,85,.15);
+  --green:#4CAF7A;
+  --green-dim:rgba(76,175,122,.12);
+  --blue:#6B8EC9;
+}
+html{scroll-behavior:smooth}
+body{font-family:'DM Sans',sans-serif;background:var(--night);color:var(--ice);overflow-x:hidden}
+
+/* GRAIN */
+body::before{content:'';position:fixed;inset:0;z-index:2000;pointer-events:none;opacity:.025;
+background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");background-size:256px}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:500;height:68px;padding:0 64px;
+display:flex;align-items:center;justify-content:space-between;
+transition:background .4s,border-color .4s;border-bottom:1px solid transparent}
+nav.scrolled{background:rgba(9,12,21,.97);backdrop-filter:blur(24px);border-bottom-color:var(--border)}
+.logo{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:600;
+letter-spacing:.5px;text-decoration:none;color:var(--ice);display:flex;align-items:baseline;gap:6px}
+.logo-sub{font-family:'DM Mono',monospace;font-size:8px;font-weight:400;letter-spacing:3px;
+text-transform:uppercase;color:var(--gold);margin-left:4px;align-self:center}
+.nav-links{display:flex;gap:36px;list-style:none;align-items:center}
+.nav-links a{font-size:10px;font-weight:500;letter-spacing:2px;text-transform:uppercase;
+color:var(--muted2);text-decoration:none;transition:color .2s}
+.nav-links a:hover{color:var(--ice)}
+.nav-cta{font-family:'DM Sans',sans-serif;font-size:11px;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;
+color:var(--night);background:var(--gold);border:none;padding:10px 26px;cursor:pointer;
+text-decoration:none;transition:background .25s,transform .2s,box-shadow .25s;display:inline-block}
+.nav-cta:hover{background:var(--gold2);transform:translateY(-1px);box-shadow:0 8px 28px rgba(201,168,76,.3)}
+.nav-hamburger{display:none;flex-direction:column;gap:5px;background:none;border:none;cursor:pointer;padding:6px}
+.nav-hamburger span{display:block;width:22px;height:1.5px;background:var(--ice)}
+.mob-menu{position:fixed;inset:0;z-index:600;background:var(--night);display:flex;flex-direction:column;
+justify-content:center;padding:60px 44px;transform:translateX(100%);
+transition:transform .45s cubic-bezier(.4,0,.2,1);pointer-events:none}
+.mob-menu.open{transform:translateX(0);pointer-events:auto}
+.mob-close{position:absolute;top:24px;right:24px;background:none;border:none;
+font-size:24px;color:var(--muted);cursor:pointer;width:44px;height:44px;
+display:flex;align-items:center;justify-content:center}
+.mob-menu a{font-family:'Cormorant Garamond',serif;font-size:clamp(32px,7vw,52px);
+font-style:italic;font-weight:300;color:var(--muted2);text-decoration:none;
+padding:12px 0;border-bottom:1px solid var(--border);display:block;transition:color .2s,padding-left .25s}
+.mob-menu a:hover{color:var(--gold);padding-left:12px}
+
+/* HERO */
+.hero{min-height:100vh;padding:140px 64px 100px;position:relative;overflow:hidden;
+display:flex;flex-direction:column;align-items:center;justify-content:center}
+.hero-grid-bg{position:absolute;inset:0;pointer-events:none;
+background-image:linear-gradient(var(--border) 1px,transparent 1px),linear-gradient(90deg,var(--border) 1px,transparent 1px);
+background-size:80px 80px;opacity:.5;
+mask-image:radial-gradient(ellipse 85% 70% at 50% 35%,black 20%,transparent 100%)}
+.hero-glow{position:absolute;top:-5%;left:50%;transform:translateX(-50%);
+width:800px;height:600px;border-radius:50%;
+background:radial-gradient(ellipse,rgba(201,168,76,.06) 0%,transparent 65%);pointer-events:none}
+.hero-content{position:relative;z-index:2;text-align:center;max-width:860px}
+.hero-eyebrow{display:inline-flex;align-items:center;gap:14px;margin-bottom:36px;
+opacity:0;animation:fadeUp .7s ease .1s forwards}
+.ey-line{width:32px;height:1px;background:var(--gold);opacity:.6}
+.ey-text{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:3.5px;text-transform:uppercase;color:var(--gold)}
+.hero-h1{font-family:'Cormorant Garamond',serif;font-size:clamp(40px,6vw,88px);
+font-weight:300;line-height:1.04;letter-spacing:-.5px;margin-bottom:12px;
+opacity:0;animation:fadeUp .7s ease .2s forwards}
+.hero-h1 strong{font-weight:600;color:var(--ice)}
+.hero-h1 em{font-style:italic;color:var(--gold2)}
+.hero-h1-line2{font-family:'Cormorant Garamond',serif;font-size:clamp(28px,4vw,58px);
+font-weight:300;font-style:italic;color:var(--muted);line-height:1.1;margin-bottom:36px;
+opacity:0;animation:fadeUp .7s ease .3s forwards}
+.hero-h1-line2 em{color:var(--gold2);font-style:italic}
+.hero-sub{font-size:16px;font-weight:300;line-height:1.85;color:var(--muted);
+max-width:540px;margin:0 auto 48px;opacity:0;animation:fadeUp .7s ease .38s forwards}
+.hero-sub strong{color:var(--ice);font-weight:400}
+.hero-ctas{display:flex;align-items:center;justify-content:center;gap:16px;flex-wrap:wrap;
+opacity:0;animation:fadeUp .7s ease .46s forwards}
+.btn-primary{font-family:'DM Sans',sans-serif;font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;
+color:var(--night);background:var(--gold);border:none;padding:16px 40px;cursor:pointer;
+text-decoration:none;transition:background .25s,transform .2s,box-shadow .25s;display:inline-block}
+.btn-primary:hover{background:var(--gold2);transform:translateY(-2px);box-shadow:0 16px 48px rgba(201,168,76,.35)}
+.btn-ghost{font-family:'DM Mono',monospace;font-size:9px;font-weight:400;letter-spacing:2.5px;text-transform:uppercase;
+color:var(--muted);background:none;border:1px solid var(--border2);padding:15px 32px;cursor:pointer;
+text-decoration:none;transition:color .25s,border-color .25s;display:inline-block}
+.btn-ghost:hover{color:var(--ice);border-color:var(--muted2)}
+.scroll-ind{position:absolute;bottom:40px;left:50%;transform:translateX(-50%);
+display:flex;flex-direction:column;align-items:center;gap:8px;
+animation:fadeUp .7s ease .9s both,bob 2.8s ease 1.8s infinite}
+.scroll-ind span{font-family:'DM Mono',monospace;font-size:8px;letter-spacing:2.5px;text-transform:uppercase;color:var(--muted2)}
+.scroll-line{width:1px;height:36px;background:linear-gradient(to bottom,var(--gold),transparent)}
+
+/* ══ FUNIL CANVAS ══ */
+.funil-sec{padding:20px 0 64px;position:relative;background:var(--night)}
+.funil-sec::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;
+background:linear-gradient(90deg,transparent,var(--gold-border),transparent)}
+.sec-label{text-align:center;margin-bottom:20px}
+.sec-label span{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:3px;
+text-transform:uppercase;color:var(--muted2)}
+.canvas-wrap{position:relative;width:100%;max-width:1080px;margin:0 auto;padding:0 32px}
+#funilCanvas{display:block;width:100%}
+.funil-legend{display:flex;align-items:center;justify-content:center;gap:32px;padding:20px 0 0;flex-wrap:wrap}
+.leg-item{display:flex;align-items:center;gap:9px}
+.leg-dot{width:6px;height:6px;border-radius:50%}
+.leg-label{font-family:'DM Mono',monospace;font-size:8px;letter-spacing:2px;text-transform:uppercase;color:var(--muted2)}
+.node-tooltip{position:fixed;z-index:600;pointer-events:none;
+background:var(--night3);border:1px solid var(--gold-border);
+padding:12px 16px;opacity:0;transition:opacity .18s;min-width:160px}
+.nt-title{font-family:'Cormorant Garamond',serif;font-size:15px;font-weight:600;color:var(--ice);margin-bottom:4px}
+.nt-desc{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1px;color:var(--muted2);line-height:1.5}
+
+/* PROBLEMA */
+.problema{padding:100px 64px 120px;position:relative;overflow:hidden;background:var(--night2)}
+.problema::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;
+background:linear-gradient(90deg,transparent,var(--gold-border),transparent)}
+.prob-inner{max-width:1080px;margin:0 auto}
+.sec-tag{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:3px;text-transform:uppercase;
+color:var(--gold);display:flex;align-items:center;gap:12px;margin-bottom:24px}
+.sec-tag::before{content:'';width:32px;height:1px;background:var(--gold);opacity:.6}
+.prob-h2{font-family:'Cormorant Garamond',serif;font-size:clamp(28px,4vw,54px);font-weight:300;
+line-height:1.1;letter-spacing:-.3px;margin-bottom:56px;max-width:680px}
+.prob-h2 em{font-style:italic;color:var(--gold2)}
+.prob-h2 strong{font-weight:600}
+
+/* ACORDEÃO */
+.acc-list{display:flex;flex-direction:column;gap:1px;background:var(--border)}
+.acc-item{background:var(--night2);transition:background .25s}
+.acc-item.open{background:var(--night3)}
+.acc-header{display:flex;align-items:center;gap:20px;padding:24px 28px;cursor:pointer;user-select:none}
+.acc-header:hover{background:rgba(232,237,245,.03)}
+.acc-num{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:300;
+color:rgba(201,168,76,.3);flex-shrink:0;width:32px;transition:color .3s}
+.acc-item.open .acc-num{color:var(--gold)}
+.acc-title{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;
+color:var(--muted);flex:1;line-height:1.2;transition:color .25s}
+.acc-item.open .acc-title{color:var(--ice)}
+.acc-badge{font-family:'DM Mono',monospace;font-size:8px;letter-spacing:1.5px;text-transform:uppercase;
+padding:4px 10px;border:1px solid rgba(224,85,85,.25);color:rgba(224,85,85,.7);
+flex-shrink:0;margin-left:auto;transition:all .25s}
+.acc-item.open .acc-badge{border-color:rgba(224,85,85,.5);color:var(--red)}
+.acc-arrow{font-size:11px;color:var(--muted2);flex-shrink:0;margin-left:16px;transition:transform .3s,color .2s}
+.acc-item.open .acc-arrow{transform:rotate(180deg);color:var(--gold)}
+.acc-body{max-height:0;overflow:hidden;transition:max-height .4s cubic-bezier(.4,0,.2,1)}
+.acc-body-inner{padding:0 28px 28px 80px;font-size:14px;font-weight:300;line-height:1.85;color:var(--muted)}
+
+/* OAB */
+.oab-sec{padding:100px 64px;position:relative;overflow:hidden;background:var(--night)}
+.oab-sec::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;
+background:linear-gradient(90deg,transparent,var(--gold-border),transparent)}
+.oab-inner{max-width:1080px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:start}
+.oab-h2{font-family:'Cormorant Garamond',serif;font-size:clamp(26px,3.8vw,50px);font-weight:300;
+line-height:1.1;letter-spacing:-.3px;margin-bottom:20px}
+.oab-h2 em{font-style:italic;color:var(--gold2)}
+.oab-h2 strong{font-weight:600}
+.oab-p{font-size:14px;font-weight:300;line-height:1.85;color:var(--muted);margin-bottom:20px}
+.oab-destaque{padding:20px 24px;border:1px solid var(--gold-border);background:var(--gold-dim);margin-top:8px}
+.oab-destaque-label{font-family:'DM Mono',monospace;font-size:8px;letter-spacing:2px;
+text-transform:uppercase;color:var(--gold);margin-bottom:8px}
+.oab-destaque-text{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:600;
+font-style:italic;color:var(--ice);line-height:1.4}
+.oab-right{display:flex;flex-direction:column;gap:1px;background:var(--border)}
+.oab-item{background:var(--night2);padding:28px 28px;display:flex;gap:18px;
+align-items:flex-start;transition:background .25s}
+.oab-item:hover{background:var(--night3)}
+.oi-icon{font-size:18px;flex-shrink:0;margin-top:2px}
+.oi-title{font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:600;
+color:var(--ice);margin-bottom:6px;line-height:1.2}
+.oi-desc{font-size:13px;font-weight:300;line-height:1.7;color:var(--muted)}
+
+/* SIMULADOR / GRÁFICO COMPARATIVO */
+.simulador{padding:100px 64px;background:var(--night2);position:relative;overflow:hidden}
+.simulador::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;
+background:linear-gradient(90deg,transparent,var(--gold-border),transparent)}
+.sim-inner{max-width:1080px;margin:0 auto}
+.sim-head{max-width:640px;margin-bottom:64px}
+.sim-h2{font-family:'Cormorant Garamond',serif;font-size:clamp(28px,4vw,52px);font-weight:300;
+line-height:1.1;letter-spacing:-.3px;margin-bottom:16px}
+.sim-h2 em{font-style:italic;color:var(--gold2)}
+.sim-sub{font-size:14px;font-weight:300;line-height:1.85;color:var(--muted)}
+.sim-layout{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:start}
+
+/* FORM */
+.sim-form{display:flex;flex-direction:column;gap:20px}
+.sim-field{display:flex;flex-direction:column;gap:8px}
+.sim-label{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:2px;
+text-transform:uppercase;color:var(--muted2)}
+.sim-input{background:var(--night3);border:1px solid var(--border2);color:var(--ice);
+padding:12px 16px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:300;
+outline:none;transition:border-color .25s,background .25s;width:100%}
+.sim-input:focus{border-color:var(--gold-border);background:var(--night4)}
+.sim-input::placeholder{color:var(--muted2)}
+.sim-slider-row{display:flex;align-items:center;gap:14px}
+.sim-slider{flex:1;-webkit-appearance:none;height:2px;background:var(--border2);outline:none;border-radius:0}
+.sim-slider::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;
+background:var(--gold);cursor:pointer;border-radius:0}
+.sim-val{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;
+color:var(--gold2);min-width:40px;text-align:right}
+.sim-channels{display:flex;flex-direction:column;gap:8px;margin-top:4px}
+.sim-ch{display:flex;align-items:center;gap:10px;padding:10px 14px;
+background:var(--night3);border:1px solid var(--border);cursor:pointer;transition:all .2s;user-select:none}
+.sim-ch.on{border-color:var(--gold-border);background:var(--gold-dim)}
+.sim-ch-box{width:16px;height:16px;border:1px solid var(--border2);flex-shrink:0;
+display:flex;align-items:center;justify-content:center;font-size:10px;transition:all .2s}
+.sim-ch.on .sim-ch-box{background:var(--gold);border-color:var(--gold);color:var(--night)}
+.sim-ch-label{font-size:13px;font-weight:300;color:var(--muted);transition:color .2s;flex:1}
+.sim-ch.on .sim-ch-label{color:var(--ice)}
+.sim-ch-weight{font-family:'DM Mono',monospace;font-size:8px;letter-spacing:1px;color:var(--muted2)}
+
+/* RESULTADO COMPARATIVO */
+.sim-result{display:flex;flex-direction:column;gap:16px}
+.sim-risk-box{padding:20px 22px;border:1px solid var(--border2);background:transparent;transition:all .5s}
+.sim-risk-label{font-family:'DM Mono',monospace;font-size:8px;letter-spacing:2px;
+text-transform:uppercase;margin-bottom:8px;color:var(--muted2);transition:color .3s}
+.sim-risk-title{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:600;
+line-height:1.2;margin-bottom:6px;color:var(--ice);transition:color .3s}
+.sim-risk-sub{font-size:12px;font-weight:300;line-height:1.6;color:var(--muted);transition:color .3s}
+.risk-bar-wrap{margin-top:14px;height:4px;background:var(--border2);position:relative;overflow:hidden}
+.risk-bar{height:100%;transition:width .8s cubic-bezier(.25,.46,.45,.94),background .5s;width:0%}
+
+/* GRÁFICO COMPARATIVO — Solo vs Nomos */
+.chart-panel{background:var(--night3);border:1px solid var(--border);padding:24px 24px 20px}
+.chart-panel-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.chart-panel-title{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:2px;
+text-transform:uppercase;color:var(--muted2)}
+.chart-legend{display:flex;gap:16px}
+.chart-legend-item{display:flex;align-items:center;gap:6px;
+font-family:'DM Mono',monospace;font-size:8px;letter-spacing:1px;color:var(--muted2)}
+.chart-legend-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.chart-bars{display:flex;flex-direction:column;gap:14px}
+.chart-row{display:flex;flex-direction:column;gap:5px}
+.chart-row-label{font-family:'DM Mono',monospace;font-size:8px;letter-spacing:1.5px;
+text-transform:uppercase;color:var(--muted2)}
+.chart-row-bars{display:flex;flex-direction:column;gap:4px}
+.chart-bar-wrap{display:flex;align-items:center;gap:10px}
+.chart-bar-track{flex:1;height:18px;background:var(--border);position:relative;overflow:hidden}
+.chart-bar-fill{height:100%;width:0%;transition:width 1.2s cubic-bezier(.25,.46,.45,.94)}
+.chart-bar-fill.solo{background:rgba(232,237,245,.12)}
+.chart-bar-fill.nomos{background:linear-gradient(90deg,var(--gold),var(--gold2))}
+.chart-bar-val{font-family:'Cormorant Garamond',serif;font-size:13px;font-weight:600;
+min-width:52px;text-align:right;transition:color .3s}
+.chart-bar-val.solo{color:var(--muted2)}
+.chart-bar-val.nomos{color:var(--gold2)}
+.chart-divider{height:1px;background:var(--border);margin:4px 0}
+.sim-disclaimer{font-family:'DM Mono',monospace;font-size:8px;letter-spacing:1px;
+color:var(--muted2);line-height:1.6;padding-top:12px;border-top:1px solid var(--border)}
+
+/* DIFERENCIAIS — DRE / EBITDA / FC */
+.diferenciais{padding:100px 64px;position:relative;overflow:hidden;background:var(--night)}
+.diferenciais::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;
+background:linear-gradient(90deg,transparent,var(--gold-border),transparent)}
+.dif-inner{max-width:1080px;margin:0 auto}
+.dif-head{display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:end;margin-bottom:64px}
+.dif-h2{font-family:'Cormorant Garamond',serif;font-size:clamp(26px,3.8vw,50px);font-weight:300;
+line-height:1.1;letter-spacing:-.3px}
+.dif-h2 em{font-style:italic;color:var(--gold2)}
+.dif-h2 strong{font-weight:600}
+.dif-sub{font-size:14px;font-weight:300;line-height:1.85;color:var(--muted)}
+.dif-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border)}
+.dif-card{background:var(--night);padding:36px 32px;position:relative;overflow:hidden;transition:background .3s}
+.dif-card:hover{background:var(--night3)}
+.dif-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;
+background:var(--gold);transform:scaleX(0);transform-origin:left;transition:transform .4s}
+.dif-card:hover::before{transform:scaleX(1)}
+.dif-card-label{font-family:'DM Mono',monospace;font-size:8px;letter-spacing:2.5px;
+text-transform:uppercase;color:var(--gold);margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.dif-card-label::before{content:'';width:16px;height:1px;background:var(--gold);opacity:.6}
+.dif-card-title{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:600;
+color:var(--ice);margin-bottom:12px;line-height:1.2}
+.dif-card-desc{font-size:13px;font-weight:300;line-height:1.8;color:var(--muted)}
+
+/* MÉTODO */
+.metodo{padding:120px 64px;position:relative;overflow:hidden;background:var(--night2)}
+.metodo::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;
+background:linear-gradient(90deg,transparent,var(--gold-border),transparent)}
+.met-inner{max-width:1080px;margin:0 auto}
+.met-head{display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:end;margin-bottom:80px}
+.met-h2{font-family:'Cormorant Garamond',serif;font-size:clamp(28px,4vw,52px);
+font-weight:300;line-height:1.1;letter-spacing:-.3px}
+.met-h2 em{font-style:italic;color:var(--gold2)}
+.met-h2 strong{font-weight:600}
+.met-sub{font-size:15px;font-weight:300;line-height:1.8;color:var(--muted)}
+.met-steps{display:grid;grid-template-columns:repeat(3,1fr);gap:0;background:var(--border)}
+.met-step{background:var(--night2);padding:44px 36px;position:relative;overflow:hidden;transition:background .3s}
+.met-step:hover{background:var(--night3)}
+.met-step::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;
+background:var(--gold);transform:scaleX(0);transform-origin:left;transition:transform .4s}
+.met-step:hover::before{transform:scaleX(1)}
+.met-step-num{font-family:'Cormorant Garamond',serif;font-size:56px;font-weight:300;
+color:rgba(201,168,76,.1);line-height:1;margin-bottom:20px;transition:color .3s}
+.met-step:hover .met-step-num{color:rgba(201,168,76,.2)}
+.met-step-title{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:600;
+color:var(--ice);margin-bottom:12px;line-height:1.2}
+.met-step-desc{font-size:13px;font-weight:300;line-height:1.8;color:var(--muted)}
+.met-step-tag{display:inline-flex;align-items:center;gap:6px;margin-top:20px;
+font-family:'DM Mono',monospace;font-size:8px;letter-spacing:1.5px;text-transform:uppercase;
+color:var(--gold);border:1px solid var(--gold-border);padding:5px 10px}
+
+/* CONCEITO */
+.conceito{padding:80px 64px;background:var(--night);position:relative;overflow:hidden;text-align:center}
+.conceito::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;
+background:linear-gradient(90deg,transparent,var(--gold-border),transparent)}
+.conceito-inner{max-width:860px;margin:0 auto}
+.conceito-frase{font-family:'Cormorant Garamond',serif;font-size:clamp(28px,4vw,56px);
+font-weight:300;line-height:1.08;letter-spacing:-.5px;color:var(--ice)}
+.conceito-frase em{font-style:italic;color:var(--gold2)}
+.conceito-frase strong{font-weight:600}
+.conceito-sub{font-size:15px;font-weight:300;color:var(--muted);max-width:440px;margin:20px auto 0}
+
+/* CTA FINAL */
+.cta-final{padding:140px 64px;position:relative;overflow:hidden;text-align:center;background:var(--night2)}
+.cta-glow{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+width:900px;height:700px;border-radius:50%;
+background:radial-gradient(ellipse,rgba(201,168,76,.05) 0%,transparent 65%);pointer-events:none}
+.cta-inner{position:relative;z-index:2;max-width:700px;margin:0 auto}
+.cta-h2{font-family:'Cormorant Garamond',serif;font-size:clamp(34px,5vw,74px);
+font-weight:300;line-height:1.06;letter-spacing:-.5px;margin-bottom:28px}
+.cta-h2 em{font-style:italic;color:var(--gold2)}
+.cta-h2 strong{font-weight:600}
+.cta-sub{font-size:16px;font-weight:300;line-height:1.8;color:var(--muted);
+margin-bottom:48px;max-width:480px;margin-left:auto;margin-right:auto}
+.cta-actions{display:flex;align-items:center;justify-content:center;gap:16px;flex-wrap:wrap;margin-bottom:28px}
+.cta-note{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1.5px;
+text-transform:uppercase;color:var(--muted2)}
+
+/* FOOTER */
+footer{padding:32px 64px;display:flex;align-items:center;justify-content:space-between;
+border-top:1px solid var(--border);background:var(--night)}
+.f-logo{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:600;
+letter-spacing:.5px;color:rgba(232,237,245,.25);text-decoration:none}
+.f-right{display:flex;align-items:center;gap:32px}
+.f-copy{font-family:'DM Mono',monospace;font-size:8px;letter-spacing:1.5px;color:var(--muted2)}
+.f-wa{font-family:'DM Mono',monospace;font-size:8px;letter-spacing:1.5px;
+text-transform:uppercase;color:var(--muted2);text-decoration:none;transition:color .2s}
+.f-wa:hover{color:var(--gold)}
+
+/* ANIMS */
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes bob{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(7px)}}
+.reveal{opacity:0;transform:translateY(28px);transition:opacity .75s ease,transform .75s ease}
+.reveal.visible{opacity:1;transform:translateY(0)}
+
+/* RESPONSIVE */
+@media(max-width:960px){
+  nav{padding:0 28px}
+  .nav-links{display:none}
+  .nav-hamburger{display:flex}
+  .hero{padding:120px 28px 100px}
+  .canvas-wrap{padding:0 16px}
+  .problema,.oab-sec,.simulador,.diferenciais,.metodo,.conceito,.cta-final{padding:80px 28px}
+  .oab-inner,.sim-layout,.met-head,.dif-head{grid-template-columns:1fr;gap:40px}
+  .met-steps,.dif-cards{grid-template-columns:1fr}
+  footer{flex-direction:column;gap:12px;text-align:center;padding:24px 28px}
+  .f-right{flex-direction:column;gap:8px}
+}
+@media(max-width:600px){
+  .btn-primary,.btn-ghost{width:100%;text-align:center}
+  .acc-body-inner{padding:0 18px 24px 52px}
+  .acc-badge{display:none}
+}
+
+/* ── PLANOS ── */
+.planos-sec{padding:120px 64px 140px;position:relative;background:var(--night)}
+.planos-sec::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--gold-border),transparent)}
+.planos-sec::after{content:'';position:absolute;inset:0;pointer-events:none;background-image:linear-gradient(var(--border) 1px,transparent 1px),linear-gradient(90deg,var(--border) 1px,transparent 1px);background-size:80px 80px;opacity:.35;mask-image:radial-gradient(ellipse 90% 60% at 50% 20%,black 0%,transparent 100%)}
+.planos-inner{max-width:1160px;margin:0 auto;position:relative;z-index:2}
+.planos-h2{font-family:'Cormorant Garamond',serif;font-size:clamp(28px,4vw,52px);font-weight:300;line-height:1.1;letter-spacing:-.3px;margin-bottom:16px;max-width:620px}
+.planos-h2 em{font-style:italic;color:var(--gold2)}
+.planos-sub{font-size:15px;font-weight:300;color:var(--muted);line-height:1.8;max-width:500px;margin-bottom:72px}
+.planos-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border2);border:1px solid var(--border2)}
+.plano-card{background:var(--night2);padding:40px 36px 36px;display:flex;flex-direction:column;position:relative;transition:background .3s}
+.plano-card:hover{background:var(--night3)}
+.plano-card.destaque{background:var(--night3);border-top:2px solid var(--gold)}
+.plano-card.destaque::before{content:'Mais completo';position:absolute;top:-1px;left:50%;transform:translateX(-50%);font-family:'DM Mono',monospace;font-size:8px;letter-spacing:2.5px;text-transform:uppercase;color:var(--night);background:var(--gold);padding:4px 14px;white-space:nowrap}
+.plano-num{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--muted2);margin-bottom:20px}
+.plano-nome{font-family:'Cormorant Garamond',serif;font-size:32px;font-weight:600;color:var(--ice);margin-bottom:8px;letter-spacing:-.3px}
+.plano-card.destaque .plano-nome{color:var(--gold2)}
+.plano-tagline{font-size:13px;font-weight:300;color:var(--muted);line-height:1.7;margin-bottom:28px;min-height:56px}
+.plano-price-wrap{display:flex;align-items:baseline;gap:6px;margin-bottom:32px;padding-bottom:28px;border-bottom:1px solid var(--border2)}
+.plano-price-from{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--muted2)}
+.plano-price{font-family:'Cormorant Garamond',serif;font-size:36px;font-weight:600;color:var(--ice);letter-spacing:-.5px;line-height:1}
+.plano-card.destaque .plano-price{color:var(--gold2)}
+.entregaveis-label{font-family:'DM Mono',monospace;font-size:8px;letter-spacing:2.5px;text-transform:uppercase;color:var(--muted2);margin-bottom:16px}
+.entregavel{border-bottom:1px solid var(--border);overflow:hidden}
+.entregavel:last-of-type{border-bottom:none}
+.entregavel-header{display:flex;align-items:center;justify-content:space-between;padding:14px 0;cursor:pointer;gap:12px;transition:opacity .2s;user-select:none}
+.entregavel-header:hover{opacity:.8}
+.entregavel-titulo{font-size:13px;font-weight:500;color:var(--ice);line-height:1.3;flex:1}
+.entregavel-icon{width:18px;height:18px;flex-shrink:0;border:1px solid var(--border2);border-radius:50%;display:flex;align-items:center;justify-content:center;transition:transform .35s,border-color .2s,background .2s}
+.entregavel.open .entregavel-icon{transform:rotate(45deg);border-color:var(--gold);background:var(--gold-dim)}
+.entregavel-icon svg{width:8px;height:8px;fill:var(--muted2)}
+.entregavel.open .entregavel-icon svg{fill:var(--gold)}
+.entregavel-body{max-height:0;overflow:hidden;transition:max-height .4s cubic-bezier(.4,0,.2,1),opacity .3s;opacity:0}
+.entregavel.open .entregavel-body{max-height:300px;opacity:1}
+.entregavel-desc{font-size:12px;font-weight:300;color:var(--muted);line-height:1.8;padding-bottom:16px}
+.entregavel-desc strong{color:var(--ice2);font-weight:400}
+.plano-cta{margin-top:auto;padding-top:32px}
+.btn-plano{display:block;width:100%;text-align:center;font-family:'DM Sans',sans-serif;font-size:10px;font-weight:600;letter-spacing:2px;text-transform:uppercase;text-decoration:none;padding:14px 24px;cursor:pointer;border:none;transition:background .25s,transform .2s,box-shadow .25s}
+.btn-plano-ghost{color:var(--ice);background:transparent;border:1px solid var(--border2)}
+.btn-plano-ghost:hover{border-color:var(--muted2);transform:translateY(-1px)}
+.btn-plano-gold{color:var(--night);background:var(--gold)}
+.btn-plano-gold:hover{background:var(--gold2);transform:translateY(-2px);box-shadow:0 12px 36px rgba(201,168,76,.3)}
+.planos-nota{margin-top:48px;text-align:center;font-family:'DM Mono',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--muted2)}
+.planos-nota span{color:var(--gold);opacity:.7}
+@media(max-width:960px){.planos-grid{grid-template-columns:1fr}.planos-sec{padding:80px 32px 100px}.plano-card{padding:32px 28px 28px}}
+@media(max-width:480px){.planos-sec{padding:60px 20px 80px}.plano-card{padding:28px 20px 24px}}
+</style>
+</head>
+<body>
+
+<nav id="nav">
+  <a href="#" class="logo">Nomos <span class="logo-sub">Assessoria</span></a>
+  <ul class="nav-links">
+    <li><a href="#problema">O problema</a></li>
+    <li><a href="#oab">A OAB</a></li>
+    <li><a href="#simulador">Simulador</a></li>
+    <li><a href="#metodo">Método</a></li>
+  </ul>
+  <a href="https://wa.me/55" class="nav-cta" target="_blank">Falar com especialista</a>
+  <button class="nav-hamburger" id="navHamburger" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<div class="mob-menu" id="mobMenu">
+  <button class="mob-close" id="mobClose">✕</button>
+  <a href="#problema" class="mob-link">O problema</a>
+  <a href="#oab" class="mob-link">A OAB</a>
+  <a href="#simulador" class="mob-link">Simulador</a>
+  <a href="#metodo" class="mob-link">Método</a>
+  <a href="https://wa.me/55" target="_blank" class="mob-link">Falar →</a>
+</div>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-grid-bg"></div>
+  <div class="hero-glow"></div>
+  <div class="hero-content">
+    <div class="hero-eyebrow">
+      <span class="ey-line"></span>
+      <span class="ey-text">Nomos Assessoria · Captação para Advocacia</span>
+      <span class="ey-line"></span>
+    </div>
+    <h1 class="hero-h1">
+      Captação não é presença.<br>
+      <strong>É estrutura.</strong>
+    </h1>
+    <p class="hero-h1-line2">E estrutura gera <em>previsibilidade.</em></p>
+    <p class="hero-sub">
+      A maioria dos escritórios tem visibilidade. <strong>Poucos têm um sistema estruturado de captação.</strong><br>
+      A Nomos constrói a infraestrutura que transforma alcance em contratos fechados — de forma previsível e mensurável.
+    </p>
+    <div class="hero-ctas">
+      <a href="#simulador" class="btn-primary">Ver o diagnóstico do meu escritório</a>
+      <a href="#problema" class="btn-ghost">Entender o problema →</a>
+    </div>
+  </div>
+  <div class="scroll-ind">
+    <span>Entenda o problema</span>
+    <div class="scroll-line"></div>
+  </div>
+</section>
+
+<!-- FUNIL CANVAS -->
+<section class="funil-sec">
+  <div class="sec-label"><span>Visualize o sistema de captação</span></div>
+  <div class="canvas-wrap">
+    <canvas id="funilCanvas"></canvas>
+  </div>
+  <div class="funil-legend">
+    <div class="leg-item"><span class="leg-dot" style="background:#C9A84C"></span><span class="leg-label">Canais de entrada</span></div>
+    <div class="leg-item"><span class="leg-dot" style="background:#E8EDF5"></span><span class="leg-label">Hub de conversão</span></div>
+    <div class="leg-item"><span class="leg-dot" style="background:#6B8EC9"></span><span class="leg-label">Resultados</span></div>
+  </div>
+</section>
+<div id="nodeTooltip" class="node-tooltip">
+  <div class="nt-title" id="ttTitle"></div>
+  <div class="nt-desc" id="ttDesc"></div>
+</div>
+
+<!-- PROBLEMA -->
+<section class="problema" id="problema">
+  <div class="prob-inner">
+    <p class="sec-tag reveal">O diagnóstico</p>
+    <h2 class="prob-h2 reveal">Por que escritórios sérios<br>não crescem como <em>deveriam.</em></h2>
+    <div class="acc-list">
+
+      <div class="acc-item open" data-acc>
+        <div class="acc-header">
+          <span class="acc-num">01</span>
+          <span class="acc-title">Dependência total de indicação</span>
+          <span class="acc-badge">Crescimento imprevisível</span>
+          <span class="acc-arrow">▾</span>
+        </div>
+        <div class="acc-body">
+          <div class="acc-body-inner">
+            Indicação é consequência de um bom trabalho. Não é estratégia de crescimento. Quando ela seca, o escritório para. Você não controla o volume, o perfil nem o momento em que os clientes chegam — e isso é o maior risco operacional que um escritório pode ter.
+          </div>
+        </div>
+      </div>
+
+      <div class="acc-item" data-acc>
+        <div class="acc-header">
+          <span class="acc-num">02</span>
+          <span class="acc-title">Site institucional não gera contratos</span>
+          <span class="acc-badge">Presença sem conversão</span>
+          <span class="acc-arrow">▾</span>
+        </div>
+        <div class="acc-body">
+          <div class="acc-body-inner">
+            Um site jurídico tradicional é vitrine. Não educa, não qualifica e não converte. Existir na internet não é o mesmo que captar. Um site precisa funcionar como ferramenta ativa de qualificação — não como cartão de visita digital.
+          </div>
+        </div>
+      </div>
+
+      <div class="acc-item" data-acc>
+        <div class="acc-header">
+          <span class="acc-num">03</span>
+          <span class="acc-title">Instagram como único canal</span>
+          <span class="acc-badge">Volume sem qualidade</span>
+          <span class="acc-arrow">▾</span>
+        </div>
+        <div class="acc-body">
+          <div class="acc-body-inner">
+            Redes sociais podem até gerar volume. Não geram previsibilidade. Dependem de algoritmo, de constância e de sorte. Precisam estar integradas a um sistema estruturado de captação — não ser o sistema.
+          </div>
+        </div>
+      </div>
+
+      <div class="acc-item" data-acc>
+        <div class="acc-header">
+          <span class="acc-num">04</span>
+          <span class="acc-title">Tráfego pago sem estrutura</span>
+          <span class="acc-badge">Investimento sem retorno</span>
+          <span class="acc-arrow">▾</span>
+        </div>
+        <div class="acc-body">
+          <div class="acc-body-inner">
+            Tráfego pago potencializa estrutura. Sem funil, sem qualificação, sem página que converte — é desperdício de verba. Você passa a competir com players que investem dez vezes mais e têm um sistema estruturado de captação. E o cliente qualificado, que vê dezenas de anúncios por dia, não vai parar no seu por acaso.
+          </div>
+        </div>
+      </div>
+
+      <div class="acc-item" data-acc>
+        <div class="acc-header">
+          <span class="acc-num">05</span>
+          <span class="acc-title">Posicionamento genérico</span>
+          <span class="acc-badge">Autoridade não percebida</span>
+          <span class="acc-arrow">▾</span>
+        </div>
+        <div class="acc-body">
+          <div class="acc-body-inner">
+            Quando o cliente não entende em segundos por que você é a escolha certa para o problema dele, ele vai para o próximo resultado. Posicionamento vago é a principal razão de leads que chegam mas não fecham contrato — e de reuniões com pessoas erradas.
+          </div>
+        </div>
+      </div>
+
+      <div class="acc-item" data-acc>
+        <div class="acc-header">
+          <span class="acc-num">06</span>
+          <span class="acc-title">Crescimento sem previsibilidade</span>
+          <span class="acc-badge">Ausência de sistema</span>
+          <span class="acc-arrow">▾</span>
+        </div>
+        <div class="acc-body">
+          <div class="acc-body-inner">
+            A maioria dos escritórios não tem um sistema estruturado de captação. Crescem por acidente, diminuem por descuido. Sem métricas, sem funil, sem processo — não há como escalar o que não se conhece. E não há como proteger o que não se controla.
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- OAB -->
+<section class="oab-sec" id="oab">
+  <div class="oab-inner">
+    <div class="oab-left reveal">
+      <p class="sec-tag">A armadilha do visível</p>
+      <h2 class="oab-h2">Sem método, o advogado acaba <em>visível pelo motivo errado.</em></h2>
+      <p class="oab-p">A pressão por aparecer no digital empurra muitos escritórios para táticas de massa — dancinhas, trends, conteúdo de entretenimento. Funcionam para audiência. Não funcionam para contrato.</p>
+      <p class="oab-p">Quem se identifica com dancinha raramente é o cliente com ticket relevante. E quando sai pela culatra — e eventualmente sai — o dano à reputação do escritório é real. Autoridade construída errado destrói autoridade construída certo.</p>
+      <div class="oab-destaque">
+        <div class="oab-destaque-label">Posição Nomos</div>
+        <div class="oab-destaque-text">"Visibilidade sem método gera audiência. Método sem visibilidade não escala. A Nomos une os dois — com a estrutura certa para cada um."</div>
+      </div>
+    </div>
+    <div class="oab-right reveal">
+      <div class="oab-item">
+        <div class="oi-icon">🎯</div>
+        <div>
+          <div class="oi-title">Audiência não é clientela</div>
+          <div class="oi-desc">Curtidas, seguidores e visualizações são métricas de vaidade. O que fecha contrato é o perfil certo chegando com a intenção certa — e isso exige estrutura, não volume de conteúdo.</div>
+        </div>
+      </div>
+      <div class="oab-item">
+        <div class="oi-icon">⚖️</div>
+        <div>
+          <div class="oi-title">Reputação é ativo permanente</div>
+          <div class="oi-desc">Uma tática equivocada pode render engajamento por uma semana e comprometer a percepção de autoridade por meses. Escritório sério constrói posicionamento — não viraliza por acidente.</div>
+        </div>
+      </div>
+      <div class="oab-item">
+        <div class="oi-icon">📐</div>
+        <div>
+          <div class="oi-title">Método define o público que chega</div>
+          <div class="oi-desc">A estrutura de captação determina quem entra em contato. Um sistema bem calibrado atrai o cliente com o perfil certo, no momento certo — e com expectativa alinhada ao que o escritório entrega.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SIMULADOR COMPARATIVO -->
+<section class="simulador" id="simulador">
+  <div class="sim-inner">
+    <div class="sim-head reveal">
+      <p class="sec-tag">Diagnóstico do seu escritório</p>
+      <h2 class="sim-h2">Veja o risco real da sua estrutura atual — e o que muda <em>com sistema.</em></h2>
+      <p class="sim-sub">Informe os dados do seu escritório. O simulador calcula a exposição ao risco e compara sua estrutura atual com o que um sistema estruturado de captação produz.</p>
+    </div>
+    <div class="sim-layout">
+      <div class="sim-form reveal">
+        <div class="sim-field">
+          <label class="sim-label">Faturamento mensal médio (R$)</label>
+          <input type="number" class="sim-input" id="sim-fat" placeholder="Ex: 30000" min="0">
+        </div>
+        <div class="sim-field">
+          <label class="sim-label">Contratos fechados por mês</label>
+          <div class="sim-slider-row">
+            <input type="range" class="sim-slider" id="sim-contratos" min="1" max="50" value="5">
+            <span class="sim-val" id="sim-contratos-val">5</span>
+          </div>
+        </div>
+        <div class="sim-field">
+          <label class="sim-label">Ticket médio por contrato (R$)</label>
+          <input type="number" class="sim-input" id="sim-ticket" placeholder="Ex: 5000" min="0">
+        </div>
+        <div class="sim-field">
+          <label class="sim-label">De onde vêm seus clientes hoje?</label>
+          <div class="sim-channels">
+            <div class="sim-ch on" data-ch="indicacao" data-risk="0.85">
+              <span class="sim-ch-box">✓</span>
+              <span class="sim-ch-label">Indicação de clientes</span>
+              <span class="sim-ch-weight">Alto risco</span>
+            </div>
+            <div class="sim-ch" data-ch="instagram" data-risk="0.65">
+              <span class="sim-ch-box"></span>
+              <span class="sim-ch-label">Instagram / Redes sociais</span>
+              <span class="sim-ch-weight">Médio risco</span>
+            </div>
+            <div class="sim-ch" data-ch="site" data-risk="0.55">
+              <span class="sim-ch-box"></span>
+              <span class="sim-ch-label">Site institucional</span>
+              <span class="sim-ch-weight">Médio risco</span>
+            </div>
+            <div class="sim-ch" data-ch="trafego" data-risk="0.45">
+              <span class="sim-ch-box"></span>
+              <span class="sim-ch-label">Tráfego pago (Meta / Google)</span>
+              <span class="sim-ch-weight">Risco controlável</span>
+            </div>
+            <div class="sim-ch" data-ch="seo" data-risk="0.30">
+              <span class="sim-ch-box"></span>
+              <span class="sim-ch-label">Conteúdo / SEO orgânico</span>
+              <span class="sim-ch-weight">Baixo risco</span>
+            </div>
+            <div class="sim-ch" data-ch="sistema" data-risk="0.10">
+              <span class="sim-ch-box"></span>
+              <span class="sim-ch-label">Sistema estruturado de captação</span>
+              <span class="sim-ch-weight">Estrutura real</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sim-result reveal">
+        <!-- Risco -->
+        <div class="sim-risk-box" id="riskBox">
+          <div class="sim-risk-label" id="riskLabel">Exposição ao risco</div>
+          <div class="sim-risk-title" id="riskTitle">Selecione seus canais para ver o diagnóstico</div>
+          <div class="sim-risk-sub" id="riskSub"></div>
+          <div class="risk-bar-wrap"><div class="risk-bar" id="riskBar"></div></div>
+        </div>
+
+        <!-- Gráfico comparativo -->
+        <div class="chart-panel" id="chartPanel">
+          <div class="chart-panel-header">
+            <span class="chart-panel-title">Estrutura solo vs. com Nomos</span>
+            <div class="chart-legend">
+              <div class="chart-legend-item"><span class="chart-legend-dot" style="background:rgba(232,237,245,.25)"></span>Solo</div>
+              <div class="chart-legend-item"><span class="chart-legend-dot" style="background:var(--gold)"></span>Com Nomos</div>
+            </div>
+          </div>
+          <div class="chart-bars">
+            <div class="chart-row">
+              <div class="chart-row-label">Contratos fechados / mês</div>
+              <div class="chart-row-bars">
+                <div class="chart-bar-wrap">
+                  <div class="chart-bar-track"><div class="chart-bar-fill solo" id="bar-contratos-solo"></div></div>
+                  <span class="chart-bar-val solo" id="val-contratos-solo">—</span>
+                </div>
+                <div class="chart-bar-wrap">
+                  <div class="chart-bar-track"><div class="chart-bar-fill nomos" id="bar-contratos-nomos"></div></div>
+                  <span class="chart-bar-val nomos" id="val-contratos-nomos">—</span>
+                </div>
+              </div>
+            </div>
+            <div class="chart-divider"></div>
+            <div class="chart-row">
+              <div class="chart-row-label">Faturamento mensal</div>
+              <div class="chart-row-bars">
+                <div class="chart-bar-wrap">
+                  <div class="chart-bar-track"><div class="chart-bar-fill solo" id="bar-fat-solo"></div></div>
+                  <span class="chart-bar-val solo" id="val-fat-solo">—</span>
+                </div>
+                <div class="chart-bar-wrap">
+                  <div class="chart-bar-track"><div class="chart-bar-fill nomos" id="bar-fat-nomos"></div></div>
+                  <span class="chart-bar-val nomos" id="val-fat-nomos">—</span>
+                </div>
+              </div>
+            </div>
+            <div class="chart-divider"></div>
+            <div class="chart-row">
+              <div class="chart-row-label">Previsibilidade de receita</div>
+              <div class="chart-row-bars">
+                <div class="chart-bar-wrap">
+                  <div class="chart-bar-track"><div class="chart-bar-fill solo" id="bar-prev-solo"></div></div>
+                  <span class="chart-bar-val solo" id="val-prev-solo">—</span>
+                </div>
+                <div class="chart-bar-wrap">
+                  <div class="chart-bar-track"><div class="chart-bar-fill nomos" id="bar-prev-nomos"></div></div>
+                  <span class="chart-bar-val nomos" id="val-prev-nomos">—</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <p class="sim-disclaimer">* Projeção baseada em benchmarks de escritórios com estrutura equivalente. Não constitui garantia de resultado. Valores são ilustrativos para fins de diagnóstico.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- DIFERENCIAIS — DRE / EBITDA / FC -->
+<section class="diferenciais" id="diferenciais">
+  <div class="dif-inner">
+    <div class="dif-head">
+      <div class="reveal">
+        <p class="sec-tag">O que muda de verdade</p>
+        <h2 class="dif-h2">Captação estruturada transforma os indicadores que <em>realmente importam.</em></h2>
+      </div>
+      <p class="dif-sub reveal">Não falamos em seguidores nem alcance. Falamos nos números que definem a saúde real do escritório — e que mudam quando a captação deixa de ser imprevisível.</p>
+    </div>
+    <div class="dif-cards">
+      <div class="dif-card reveal">
+        <div class="dif-card-label">DRE</div>
+        <div class="dif-card-title">Receita previsível no resultado</div>
+        <p class="dif-card-desc">Com um sistema estruturado, a entrada de contratos deixa de ser episódica e passa a ser contínua. O DRE do escritório reflete isso — menos oscilação, mais consistência mês a mês.</p>
+      </div>
+      <div class="dif-card reveal">
+        <div class="dif-card-label">EBITDA</div>
+        <div class="dif-card-title">Margem que reflete eficiência</div>
+        <p class="dif-card-desc">Captação sem sistema tem custo invisível: tempo de sócios, reuniões erradas, leads frios. Quando o processo é estruturado, o custo de aquisição cai e a margem operacional melhora.</p>
+      </div>
+      <div class="dif-card reveal">
+        <div class="dif-card-label">Fluxo de Caixa</div>
+        <div class="dif-card-title">Caixa que permite planejamento</div>
+        <p class="dif-card-desc">Escritório que depende de indicação vive de pico e vale. Com previsibilidade de entrada, o fluxo de caixa estabiliza — e o escritório consegue planejar crescimento com segurança.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- MÉTODO -->
+<section class="metodo" id="metodo">
+  <div class="met-inner">
+    <div class="met-head">
+      <div class="reveal">
+        <p class="sec-tag">Método Nomos</p>
+        <h2 class="met-h2">Três etapas para um escritório que <em>atrai</em> clientes<br>em vez de <strong>esperar por eles.</strong></h2>
+      </div>
+      <p class="met-sub reveal">Não vendemos ferramentas avulsas. Construímos a estrutura completa — da visibilidade até o contrato fechado — com cada peça conectada à próxima.</p>
+    </div>
+    <div class="met-steps">
+      <div class="met-step reveal">
+        <div class="met-step-num">01</div>
+        <div class="met-step-title">Diagnóstico & Posicionamento</div>
+        <p class="met-step-desc">Mapeamos sua estrutura atual, identificamos as lacunas e definimos o posicionamento que faz o cliente certo te encontrar — antes de qualquer investimento em tráfego.</p>
+        <span class="met-step-tag">Fundação</span>
+      </div>
+      <div class="met-step reveal">
+        <div class="met-step-num">02</div>
+        <div class="met-step-title">Infraestrutura de Conversão</div>
+        <p class="met-step-desc">Construímos o site de alta conversão, o processo de qualificação e as integrações que transformam visitante em lead qualificado — pronto para fechar contrato.</p>
+        <span class="met-step-tag">Estrutura</span>
+      </div>
+      <div class="met-step reveal">
+        <div class="met-step-num">03</div>
+        <div class="met-step-title">Tráfego & Previsibilidade</div>
+        <p class="met-step-desc">Ativamos os canais de aquisição com a estrutura já no ar. Tráfego pago, SEO e conteúdo funcionam juntos — e cada contrato fechado é rastreável, mensurável e replicável.</p>
+        <span class="met-step-tag">Escala</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PLANOS -->
+<section class="planos-sec" id="planos">
+  <div class="planos-inner">
+    <div class="sec-tag">Estruturas de captação</div>
+    <h2 class="planos-h2">Escolha o nível de<br><em>estrutura que seu escritório precisa</em></h2>
+    <p class="planos-sub">Cada plano foi desenhado para um estágio diferente de maturidade digital. Todos começam com o mesmo diagnóstico — o que muda é o quanto você quer que a NOMOS caminhe ao seu lado.</p>
+    <div class="planos-grid">
+
+      <!-- PLANO 01 — FUNDAÇÃO -->
+      <div class="plano-card">
+        <div class="plano-num">Plano 01</div>
+        <div class="plano-nome">Fundação</div>
+        <div class="plano-tagline">A estrutura completa nas suas mãos. Você decide o ritmo da execução.</div>
+        <div class="plano-price-wrap"><span class="plano-price-from">a partir de</span><span class="plano-price">R$ 1.800</span></div>
+        <div class="entregaveis-label">O que está incluso</div>
+        <div class="entregavel">
+          <div class="entregavel-header" onclick="togglePlano(this)"><span class="entregavel-titulo">Diagnóstico de posicionamento</span><span class="entregavel-icon"><svg viewBox="0 0 10 10"><path d="M5 1v8M1 5h8"/></svg></span></div>
+          <div class="entregavel-body"><p class="entregavel-desc">Mapeamos o que seus concorrentes estão usando na sua região e no Brasil, entregando uma análise do <strong>nível de sofisticação necessário</strong> para alcançar clientes no seu nicho jurídico. Também indicamos <strong>em quais canais orgânicos o escritório deve se posicionar</strong> — LinkedIn, Google, YouTube ou outros — com base no comportamento real do seu cliente ideal. Você sai sabendo exatamente onde estar e o que fazer para sair na frente.</p></div>
+        </div>
+        <div class="entregavel">
+          <div class="entregavel-header" onclick="togglePlano(this)"><span class="entregavel-titulo">Proposta única de valor</span><span class="entregavel-icon"><svg viewBox="0 0 10 10"><path d="M5 1v8M1 5h8"/></svg></span></div>
+          <div class="entregavel-body"><p class="entregavel-desc">Dentre os seus serviços advocatícios, identificamos <strong>qual área tem maior demanda ativa</strong> na sua região e qual posicionamento permite acelerar resultados no menor tempo possível — sem disputar preço, disputando relevância.</p></div>
+        </div>
+        <div class="entregavel">
+          <div class="entregavel-header" onclick="togglePlano(this)"><span class="entregavel-titulo">Landing page de conversão</span><span class="entregavel-icon"><svg viewBox="0 0 10 10"><path d="M5 1v8M1 5h8"/></svg></span></div>
+          <div class="entregavel-body"><p class="entregavel-desc">Uma página construída em cima da sua proposta de valor — não um site genérico. Ela fala <strong>com quem já tem a dor e está procurando um advogado agora</strong>, transformando visitantes em consultas agendadas.</p></div>
+        </div>
+        <div class="entregavel">
+          <div class="entregavel-header" onclick="togglePlano(this)"><span class="entregavel-titulo">Guia de tráfego pago</span><span class="entregavel-icon"><svg viewBox="0 0 10 10"><path d="M5 1v8M1 5h8"/></svg></span></div>
+          <div class="entregavel-body"><p class="entregavel-desc">Um manual prático com as campanhas exatas para você ou alguém do seu escritório ativar — <strong>segmentação, orçamento, criativos e métricas</strong> para acompanhar. Você executa, mas não no escuro.</p></div>
+        </div>
+        <div class="plano-cta"><a href="#" class="btn-plano btn-plano-ghost">Agendar diagnóstico gratuito</a></div>
+      </div>
+
+      <!-- PLANO 02 — SISTEMA -->
+      <div class="plano-card destaque">
+        <div class="plano-num">Plano 02</div>
+        <div class="plano-nome">Sistema</div>
+        <div class="plano-tagline">Estrutura e execução. A NOMOS opera o tráfego enquanto você opera o direito.</div>
+        <div class="plano-price-wrap"><span class="plano-price-from">a partir de</span><span class="plano-price">R$ 4.500</span></div>
+        <div class="entregaveis-label">O que está incluso</div>
+        <div class="entregavel">
+          <div class="entregavel-header" onclick="togglePlano(this)"><span class="entregavel-titulo">Tudo do Plano Fundação</span><span class="entregavel-icon"><svg viewBox="0 0 10 10"><path d="M5 1v8M1 5h8"/></svg></span></div>
+          <div class="entregavel-body"><p class="entregavel-desc">Diagnóstico, proposta única de valor e landing page de conversão — a base que garante que o tráfego pago tenha <strong>para onde converter</strong>. Não adianta tráfego sem estrutura.</p></div>
+        </div>
+        <div class="entregavel">
+          <div class="entregavel-header" onclick="togglePlano(this)"><span class="entregavel-titulo">Gestão de tráfego pago</span><span class="entregavel-icon"><svg viewBox="0 0 10 10"><path d="M5 1v8M1 5h8"/></svg></span></div>
+          <div class="entregavel-body"><p class="entregavel-desc">Criação e gestão das campanhas no <strong>Google Ads ou Meta Ads</strong> — o canal mais eficaz para o seu nicho, definido no diagnóstico. Cuidamos de segmentação, criativos, testes A/B e otimização contínua.</p></div>
+        </div>
+        <div class="entregavel">
+          <div class="entregavel-header" onclick="togglePlano(this)"><span class="entregavel-titulo">Otimização mensal de campanhas</span><span class="entregavel-icon"><svg viewBox="0 0 10 10"><path d="M5 1v8M1 5h8"/></svg></span></div>
+          <div class="entregavel-body"><p class="entregavel-desc">Toda semana as campanhas são revisadas. Todo mês você recebe um relatório com <strong>custo por lead, custo por consulta agendada e projeção de contratos</strong> — números claros, sem jargão de tráfego. O objetivo é sempre reduzir o custo por contrato fechado, não apenas o custo por clique.</p></div>
+        </div>
+        <div class="entregavel">
+          <div class="entregavel-header" onclick="togglePlano(this)"><span class="entregavel-titulo">Período de calibragem incluso</span><span class="entregavel-icon"><svg viewBox="0 0 10 10"><path d="M5 1v8M1 5h8"/></svg></span></div>
+          <div class="entregavel-body"><p class="entregavel-desc">Os primeiros três meses são dedicados à calibragem do sistema — ajustes de posicionamento, criativos e segmentação <strong>sem custo adicional</strong>. Esse processo não encerra o serviço: é a fase em que o sistema aprende e estabiliza antes de escalar.</p></div>
+        </div>
+        <div class="entregavel">
+          <div class="entregavel-header" onclick="togglePlano(this)"><span class="entregavel-titulo">Reunião mensal de estratégia</span><span class="entregavel-icon"><svg viewBox="0 0 10 10"><path d="M5 1v8M1 5h8"/></svg></span></div>
+          <div class="entregavel-body"><p class="entregavel-desc">Uma vez por mês, revisamos juntos os resultados e definimos os próximos movimentos. Integramos os dados de marketing com <strong>indicadores financeiros do escritório — DRE, EBITDA e Fluxo de Caixa</strong> — para que você tome decisões com a visão completa do negócio, não apenas do tráfego.</p></div>
+        </div>
+        <div class="plano-cta"><a href="#" class="btn-plano btn-plano-gold">Agendar diagnóstico gratuito</a></div>
+      </div>
+
+      <!-- PLANO 03 — AUTORIDADE -->
+      <div class="plano-card">
+        <div class="plano-num">Plano 03</div>
+        <div class="plano-nome">Autoridade</div>
+        <div class="plano-tagline">Para escritórios que não querem apenas captar clientes — querem ser a referência do nicho.</div>
+        <div class="plano-price-wrap"><span class="plano-price-from">a partir de</span><span class="plano-price">R$ 8.000</span></div>
+        <div class="entregaveis-label">O que está incluso</div>
+        <div class="entregavel">
+          <div class="entregavel-header" onclick="togglePlano(this)"><span class="entregavel-titulo">Tudo do Plano Sistema</span><span class="entregavel-icon"><svg viewBox="0 0 10 10"><path d="M5 1v8M1 5h8"/></svg></span></div>
+          <div class="entregavel-body"><p class="entregavel-desc">A base completa de diagnóstico, posicionamento, landing page, gestão de tráfego e acompanhamento — <strong>tudo incluso e já em operação</strong> antes de adicionarmos as camadas de autoridade.</p></div>
+        </div>
+        <div class="entregavel">
+          <div class="entregavel-header" onclick="togglePlano(this)"><span class="entregavel-titulo">Reposicionamento completo de marca</span><span class="entregavel-icon"><svg viewBox="0 0 10 10"><path d="M5 1v8M1 5h8"/></svg></span></div>
+          <div class="entregavel-body"><p class="entregavel-desc">Revisamos identidade visual, naming, tom de voz e presença digital do escritório. <strong>Do logo à forma como o advogado se apresenta em uma reunião</strong> — tudo alinhado para transmitir a autoridade que ele já tem tecnicamente.</p></div>
+        </div>
+        <div class="entregavel">
+          <div class="entregavel-header" onclick="togglePlano(this)"><span class="entregavel-titulo">LinkedIn como canal de autoridade</span><span class="entregavel-icon"><svg viewBox="0 0 10 10"><path d="M5 1v8M1 5h8"/></svg></span></div>
+          <div class="entregavel-body"><p class="entregavel-desc">Estruturamos o LinkedIn do advogado como um canal ativo de geração de negócios — não de posts aleatórios. <strong>Perfil otimizado, cadência de conteúdo estratégico e abordagem de conexões</strong> que geram consultas sem parecer venda.</p></div>
+        </div>
+        <div class="entregavel">
+          <div class="entregavel-header" onclick="togglePlano(this)"><span class="entregavel-titulo">Estratégia de conteúdo jurídico</span><span class="entregavel-icon"><svg viewBox="0 0 10 10"><path d="M5 1v8M1 5h8"/></svg></span></div>
+          <div class="entregavel-body"><p class="entregavel-desc">Um calendário editorial construído em cima das dúvidas reais dos seus clientes ideais. Conteúdo que <strong>educa, gera autoridade e atrai leads qualificados organicamente</strong> — sem depender eternamente de tráfego pago.</p></div>
+        </div>
+        <div class="entregavel">
+          <div class="entregavel-header" onclick="togglePlano(this)"><span class="entregavel-titulo">Gestão de redes sociais</span><span class="entregavel-icon"><svg viewBox="0 0 10 10"><path d="M5 1v8M1 5h8"/></svg></span></div>
+          <div class="entregavel-body"><p class="entregavel-desc">Cuidamos da criação e formatação dos posts para os canais definidos no diagnóstico — <strong>roteiro, design e publicação</strong>, tudo alinhado ao posicionamento do escritório. Para clientes na região de Campo Grande-MS, também produzimos <strong>Reels e conteúdo em vídeo</strong>, com produção presencial quando necessário.</p></div>
+        </div>
+        <div class="entregavel">
+          <div class="entregavel-header" onclick="togglePlano(this)"><span class="entregavel-titulo">Inteligência jurídica de mercado</span><span class="entregavel-icon"><svg viewBox="0 0 10 10"><path d="M5 1v8M1 5h8"/></svg></span></div>
+          <div class="entregavel-body"><p class="entregavel-desc">Relatórios periódicos com <strong>teses jurídicas em alta no seu nicho</strong> e análise de concorrência via JusBrasil — identificando quais causas seus concorrentes estão ganhando, quais argumentos estão prevalecendo e onde existe espaço para você se posicionar como referência técnica antes que o mercado perceba.</p></div>
+        </div>
+        <div class="entregavel">
+          <div class="entregavel-header" onclick="togglePlano(this)"><span class="entregavel-titulo">Parceria contínua de crescimento</span><span class="entregavel-icon"><svg viewBox="0 0 10 10"><path d="M5 1v8M1 5h8"/></svg></span></div>
+          <div class="entregavel-body"><p class="entregavel-desc">A NOMOS funciona como seu sócio de crescimento digital — <strong>presente nas decisões, não só na execução</strong>. Reuniões quinzenais, ajustes contínuos e visão de longo prazo para transformar o escritório em referência de mercado.</p></div>
+        </div>
+        <div class="plano-cta"><a href="#" class="btn-plano btn-plano-ghost">Agendar diagnóstico gratuito</a></div>
+      </div>
+
+    </div>
+    <p class="planos-nota">Todos os planos incluem diagnóstico inicial gratuito <span>·</span> Sem fidelidade forçada <span>·</span> Resultados mensuráveis desde o primeiro mês</p>
+  </div>
+</section>
+
+<!-- CONCEITO -->
+<section class="conceito">
+  <div class="conceito-inner reveal">
+    <p class="conceito-frase">
+      Um escritório que fecha contratos com <em>previsibilidade</em><br>
+      não depende de sorte.<br>
+      <strong>Depende de estrutura.</strong>
+    </p>
+    <p class="conceito-sub">E estrutura é exatamente o que a Nomos constrói.</p>
+  </div>
+</section>
+
+<!-- CTA FINAL -->
+<section class="cta-final">
+  <div class="cta-glow"></div>
+  <div class="cta-inner reveal">
+    <p class="sec-tag" style="justify-content:center;margin-bottom:28px">Próximo passo</p>
+    <h2 class="cta-h2">
+      Veja como seria a estrutura<br>do <em>seu</em> escritório.
+    </h2>
+    <p class="cta-sub">Sem compromisso. Uma conversa para entender onde você está, onde quer chegar — e se faz sentido construir isso juntos.</p>
+    <div class="cta-actions">
+      <a href="https://wa.me/55" class="btn-primary" target="_blank">Agendar diagnóstico agora →</a>
+      <a href="#simulador" class="btn-ghost">Usar o simulador primeiro</a>
+    </div>
+    <p class="cta-note">Atendimento especializado · Resposta em até 24h</p>
+  </div>
+</section>
+
+<footer>
+  <a href="#" class="f-logo">Nomos</a>
+  <div class="f-right">
+    <span class="f-copy">© 2026 Nomos Assessoria · Campo Grande, MS</span>
+    <a href="https://wa.me/55" target="_blank" class="f-wa">💬 WhatsApp</a>
+  </div>
+</footer>
+
+<script>
+/* NAV */
+window.addEventListener('scroll',()=>{
+  document.getElementById('nav').classList.toggle('scrolled',window.scrollY>40);
+});
+
+/* MOBILE MENU */
+const mobMenu=document.getElementById('mobMenu');
+const hamburger=document.getElementById('navHamburger');
+const mobClose=document.getElementById('mobClose');
+hamburger.addEventListener('click',()=>{mobMenu.classList.add('open');document.body.style.overflow='hidden';});
+mobClose.addEventListener('click',()=>{mobMenu.classList.remove('open');document.body.style.overflow='';});
+document.querySelectorAll('.mob-link').forEach(l=>l.addEventListener('click',()=>{mobMenu.classList.remove('open');document.body.style.overflow='';}));
+
+/* REVEAL */
+const obs=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('visible');});
+},{threshold:.06});
+document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+
+/* ACORDEÃO */
+document.querySelectorAll('[data-acc]').forEach(item=>{
+  const header=item.querySelector('.acc-header');
+  const body=item.querySelector('.acc-body');
+  if(item.classList.contains('open')){body.style.maxHeight=body.scrollHeight+'px';}
+  header.addEventListener('click',()=>{
+    const isOpen=item.classList.contains('open');
+    document.querySelectorAll('[data-acc].open').forEach(other=>{
+      other.classList.remove('open');
+      other.querySelector('.acc-body').style.maxHeight='0';
+    });
+    if(!isOpen){item.classList.add('open');body.style.maxHeight=body.scrollHeight+'px';}
+  });
+});
+
+/* FUNIL CANVAS */
+(function(){
+  const canvas=document.getElementById('funilCanvas');
+  const ctx=canvas.getContext('2d');
+  const tooltip=document.getElementById('nodeTooltip');
+  const ttTitle=document.getElementById('ttTitle');
+  const ttDesc=document.getElementById('ttDesc');
+
+  const COL={
+    gold:'#C9A84C',goldDim:'#8A6A28',blue:'#6B8EC9',blueDim:'#3A5A94',
+    ice:'#E8EDF5',muted:'rgba(232,237,245,0.35)',muted2:'rgba(232,237,245,0.15)',
+    bg:'#090C15',nodeBg:'#0D1020',
+  };
+
+  const DEF=[
+    {id:'seo',label:'SEO\nJurídico',icon:'🔍',group:'entrada',px:.07,py:.15,desc:'Tráfego orgânico de quem pesquisa seu serviço'},
+    {id:'meta',label:'Meta Ads',icon:'📱',group:'entrada',px:.07,py:.37,desc:'Alcance segmentado por perfil e localidade'},
+    {id:'google',label:'Google Ads',icon:'🎯',group:'entrada',px:.07,py:.59,desc:'Captura quem já busca um advogado agora'},
+    {id:'content',label:'Conteúdo\nAutoridade',icon:'✍️',group:'entrada',px:.07,py:.81,desc:'Posicionamento e educação do cliente ideal'},
+    {id:'linkedin',label:'LinkedIn\nJurídico',icon:'💼',group:'entrada',px:.22,py:.93,desc:'Rede profissional para B2B e empresarial'},
+    {id:'hub',label:'Site de Alta\nConversão',icon:'⚖️',group:'hub',px:.5,py:.5,desc:'O centro da estrutura — converte visita em contrato'},
+    {id:'whats',label:'WhatsApp\nDireto',icon:'💬',group:'saida',px:.93,py:.15,desc:'Atendimento imediato com contexto pré-qualificado'},
+    {id:'agenda',label:'Agendamento\nOnline',icon:'📅',group:'saida',px:.93,py:.37,desc:'Reunião marcada sem fricção'},
+    {id:'ebook',label:'Isca\nDigital',icon:'📘',group:'saida',px:.93,py:.59,desc:'Captura de lead com entrega de valor imediato'},
+    {id:'nutri',label:'Nutrição\nde Leads',icon:'🔄',group:'saida',px:.93,py:.81,desc:'Lead que ainda não está pronto — mas vai estar'},
+    {id:'crm',label:'CRM &\nMétricas',icon:'📊',group:'saida',px:.78,py:.93,desc:'Acompanhamento e rastreio de cada canal'},
+  ];
+
+  const CONN_DEF=[
+    {from:'seo',to:'hub',g:'e'},{from:'meta',to:'hub',g:'e'},
+    {from:'google',to:'hub',g:'e'},{from:'content',to:'hub',g:'e'},
+    {from:'linkedin',to:'hub',g:'e'},{from:'hub',to:'whats',g:'s'},
+    {from:'hub',to:'agenda',g:'s'},{from:'hub',to:'ebook',g:'s'},
+    {from:'hub',to:'nutri',g:'s'},{from:'hub',to:'crm',g:'s'},
+  ];
+
+  let W,H,DPR,nodes=[],conns=[],hovered=null,animId=null,hubPulse=0;
+
+  function setup(){
+    DPR=window.devicePixelRatio||1;
+    const wrap=canvas.parentElement;
+    W=wrap.clientWidth-64;
+    H=Math.min(W*0.62,480);
+    canvas.width=W*DPR;canvas.height=H*DPR;
+    canvas.style.width=W+'px';canvas.style.height=H+'px';
+    ctx.scale(DPR,DPR);
+    const isSmall=W<560;
+    const rHub=isSmall?34:48,rNode=isSmall?22:30;
+    nodes=DEF.map(d=>({...d,x:d.px*W,y:d.py*H,r:d.group==='hub'?rHub:rNode}));
+    conns=CONN_DEF.map(c=>{
+      const fn=nodes.find(n=>n.id===c.from),tn=nodes.find(n=>n.id===c.to);
+      const pts=[];
+      for(let i=0;i<3;i++)pts.push({t:Math.random(),speed:.002+Math.random()*.003,size:1.4+Math.random()*.6});
+      return {...c,fn,tn,pts};
+    });
+  }
+
+  function bezier(a,b,t){
+    const mx=(a.x+b.x)/2,mt=1-t;
+    return{x:mt*mt*mt*a.x+3*mt*mt*t*mx+3*mt*t*t*mx+t*t*t*b.x,
+           y:mt*mt*mt*a.y+3*mt*mt*t*a.y+3*mt*t*t*b.y+t*t*t*b.y};
+  }
+
+  function drawConn(c){
+    const{fn:a,tn:b,g,pts}=c;
+    const isHov=hovered&&(hovered.id===a.id||hovered.id===b.id);
+    const col=g==='e'?COL.gold:COL.blue,alpha=isHov?.55:.18,mx=(a.x+b.x)/2;
+    ctx.beginPath();ctx.setLineDash([4,10]);
+    ctx.moveTo(a.x,a.y);ctx.bezierCurveTo(mx,a.y,mx,b.y,b.x,b.y);
+    ctx.strokeStyle=col;ctx.lineWidth=isHov?1.5:.8;ctx.globalAlpha=alpha;
+    ctx.stroke();ctx.setLineDash([]);ctx.globalAlpha=1;
+    pts.forEach(p=>{
+      const pos=bezier(a,b,p.t);
+      const g2=ctx.createRadialGradient(pos.x,pos.y,0,pos.x,pos.y,p.size*5);
+      g2.addColorStop(0,col);g2.addColorStop(1,'transparent');
+      ctx.beginPath();ctx.arc(pos.x,pos.y,p.size*5,0,Math.PI*2);
+      ctx.fillStyle=g2;ctx.globalAlpha=.25;ctx.fill();
+      ctx.beginPath();ctx.arc(pos.x,pos.y,p.size,0,Math.PI*2);
+      ctx.fillStyle=col;ctx.globalAlpha=.9;ctx.fill();ctx.globalAlpha=1;
+    });
+  }
+
+  function drawNode(n){
+    const isHub=n.group==='hub',isHov=hovered&&hovered.id===n.id;
+    const col=n.group==='entrada'?COL.gold:n.group==='saida'?COL.blue:COL.ice;
+    if(isHub)[20,36].forEach((offset,i)=>{
+      const pr=n.r+offset+Math.sin(hubPulse-i*.9)*4;
+      ctx.beginPath();ctx.arc(n.x,n.y,pr,0,Math.PI*2);
+      ctx.strokeStyle=COL.gold;ctx.lineWidth=1;ctx.globalAlpha=.05-i*.015;
+      ctx.stroke();ctx.globalAlpha=1;
+    });
+    if(isHub||isHov){ctx.shadowColor=col;ctx.shadowBlur=isHub?32:18;}
+    ctx.beginPath();ctx.arc(n.x,n.y,n.r,0,Math.PI*2);
+    const grad=ctx.createRadialGradient(n.x-n.r*.25,n.y-n.r*.25,0,n.x,n.y,n.r);
+    grad.addColorStop(0,isHub?'#161828':'#13152A');grad.addColorStop(1,isHub?'#090C15':'#0D1020');
+    ctx.fillStyle=grad;ctx.fill();ctx.shadowBlur=0;ctx.shadowColor='transparent';
+    ctx.beginPath();ctx.arc(n.x,n.y,n.r,0,Math.PI*2);
+    ctx.strokeStyle=isHov||isHub?col:'rgba(232,237,245,0.1)';
+    ctx.lineWidth=isHub?1.5:.8;ctx.globalAlpha=isHov?.9:(isHub?.5:.18);
+    ctx.stroke();ctx.globalAlpha=1;
+    const iSz=isHub?(W<560?18:22):(W<560?13:16);
+    ctx.font=`${iSz}px serif`;ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.fillText(n.icon,n.x,n.y-(isHub?9:7));
+    const lines=n.label.split('\n'),fSz=isHub?(W<560?8:9):(W<560?7:8);
+    ctx.font=`${isHub?600:300} ${fSz}px 'DM Mono',monospace`;
+    ctx.fillStyle=isHov?col:(isHub?COL.ice:COL.muted);
+    ctx.globalAlpha=isHub?1:(isHov?.9:.5);
+    const lh=fSz+2,sy=n.y+(isHub?11:8);
+    lines.forEach((l,i)=>ctx.fillText(l,n.x,sy+i*lh));
+    ctx.globalAlpha=1;ctx.textBaseline='alphabetic';
+  }
+
+  function tick(){
+    ctx.clearRect(0,0,W,H);hubPulse+=.028;
+    conns.forEach(c=>{c.pts.forEach(p=>{p.t+=p.speed;if(p.t>1)p.t=0;});});
+    conns.forEach(drawConn);nodes.forEach(drawNode);
+    animId=requestAnimationFrame(tick);
+  }
+
+  function nodeAt(cx,cy){
+    const r=canvas.getBoundingClientRect(),mx=cx-r.left,my=cy-r.top;
+    return nodes.find(n=>Math.hypot(n.x-mx,n.y-my)<n.r+10)||null;
+  }
+
+  canvas.addEventListener('mousemove',e=>{
+    const n=nodeAt(e.clientX,e.clientY);hovered=n;
+    canvas.style.cursor=n?'pointer':'default';
+    if(n){ttTitle.textContent=n.label.replace('\n',' ');ttDesc.textContent=n.desc;
+    tooltip.style.opacity='1';tooltip.style.left=(e.clientX+18)+'px';tooltip.style.top=(e.clientY-50)+'px';}
+    else tooltip.style.opacity='0';
+  });
+  canvas.addEventListener('mouseleave',()=>{hovered=null;tooltip.style.opacity='0';});
+
+  let resizeTimer;
+  window.addEventListener('resize',()=>{
+    clearTimeout(resizeTimer);
+    resizeTimer=setTimeout(()=>{
+      if(animId)cancelAnimationFrame(animId);
+      ctx.setTransform(1,0,0,1,0,0);setup();tick();
+    },120);
+  });
+
+  setup();tick();
+})();
+
+/* SIMULADOR */
+(function(){
+  const fatInput=document.getElementById('sim-fat');
+  const contratosSlider=document.getElementById('sim-contratos');
+  const contratosVal=document.getElementById('sim-contratos-val');
+  const ticketInput=document.getElementById('sim-ticket');
+  const channels=document.querySelectorAll('.sim-ch');
+  const riskBox=document.getElementById('riskBox');
+  const riskLabel=document.getElementById('riskLabel');
+  const riskTitle=document.getElementById('riskTitle');
+  const riskSub=document.getElementById('riskSub');
+  const riskBar=document.getElementById('riskBar');
+
+  contratosSlider.addEventListener('input',()=>{contratosVal.textContent=contratosSlider.value;calcular();});
+  channels.forEach(ch=>{
+    ch.addEventListener('click',()=>{
+      ch.classList.toggle('on');
+      ch.querySelector('.sim-ch-box').textContent=ch.classList.contains('on')?'✓':'';
+      calcular();
+    });
+  });
+  fatInput.addEventListener('input',calcular);
+  ticketInput.addEventListener('input',calcular);
+
+  function fmt(v){
+    if(v>=1000000)return 'R$ '+(v/1000000).toFixed(1)+'M';
+    if(v>=1000)return 'R$ '+(v/1000).toFixed(0)+'k';
+    return 'R$ '+Math.round(v).toLocaleString('pt-BR');
+  }
+
+  function setBar(soloId,nomosId,soloValId,nomosValId,soloPct,nomosPct,soloTxt,nomosTxt){
+    setTimeout(()=>{
+      document.getElementById(soloId).style.width=soloPct+'%';
+      document.getElementById(nomosId).style.width=nomosPct+'%';
+    },150);
+    document.getElementById(soloValId).textContent=soloTxt;
+    document.getElementById(nomosValId).textContent=nomosTxt;
+  }
+
+  function calcular(){
+    const fat=parseFloat(fatInput.value)||0;
+    const contratos=parseInt(contratosSlider.value)||5;
+    const ticket=parseFloat(ticketInput.value)||0;
+    const activeChannels=Array.from(channels).filter(ch=>ch.classList.contains('on'));
+
+    if(activeChannels.length===0){
+      riskTitle.textContent='Selecione os canais que você usa hoje';
+      riskSub.textContent='';
+      riskBar.style.width='0%';
+      riskBox.style.borderColor='var(--border2)';
+      riskBox.style.background='transparent';
+      riskLabel.style.color='var(--muted2)';
+      riskTitle.style.color='var(--ice)';
+      ['bar-contratos-solo','bar-contratos-nomos','bar-fat-solo','bar-fat-nomos','bar-prev-solo','bar-prev-nomos'].forEach(id=>{
+        document.getElementById(id).style.width='0%';
+      });
+      ['val-contratos-solo','val-contratos-nomos','val-fat-solo','val-fat-nomos','val-prev-solo','val-prev-nomos'].forEach(id=>{
+        document.getElementById(id).textContent='—';
+      });
+      return;
+    }
+
+    const risks=activeChannels.map(ch=>parseFloat(ch.dataset.risk));
+    const hasSystem=activeChannels.some(ch=>ch.dataset.ch==='sistema');
+    const hasTraffic=activeChannels.some(ch=>ch.dataset.ch==='trafego');
+    const hasSeo=activeChannels.some(ch=>ch.dataset.ch==='seo');
+    const onlyIndicacao=activeChannels.length===1&&activeChannels[0].dataset.ch==='indicacao';
+
+    let riskScore=risks.reduce((a,b)=>a+b,0)/risks.length;
+    if(activeChannels.length>=3)riskScore*=0.82;
+    if(activeChannels.length>=5)riskScore*=0.75;
+    if(hasSystem)riskScore*=0.5;
+    riskScore=Math.min(Math.max(riskScore,0.05),0.98);
+    const riskPct=Math.round(riskScore*100);
+
+    let cor,borderCor,bgCor,titulo,sub;
+    if(riskPct>=70){
+      cor='var(--red)';borderCor='rgba(224,85,85,.35)';bgCor='var(--red-dim)';
+      titulo=riskPct+'% de exposição ao risco';
+      sub=onlyIndicacao
+        ?'Estrutura 100% dependente de indicação. Qualquer oscilação impacta diretamente a entrada de contratos — sem aviso prévio.'
+        :'Alta concentração de risco. Seus canais dependem de fatores que você não controla. Um sistema estruturado reduziria essa exposição significativamente.';
+    }else if(riskPct>=40){
+      cor='var(--gold)';borderCor='var(--gold-border)';bgCor='var(--gold-dim)';
+      titulo=riskPct+'% de exposição ao risco';
+      sub='Estrutura parcialmente diversificada, mas ainda com vulnerabilidades. Sem sistema estruturado, o crescimento segue dependente de fatores externos.';
+    }else{
+      cor='var(--green)';borderCor='rgba(76,175,122,.3)';bgCor='var(--green-dim)';
+      titulo=riskPct+'% de exposição ao risco';
+      sub='Boa diversificação. Com um sistema estruturado, você pode transformar essa base em crescimento previsível e mensurável de contratos.';
+    }
+
+    riskBox.style.borderColor=borderCor;
+    riskBox.style.background=bgCor;
+    riskLabel.style.color=cor;
+    riskTitle.style.color=cor;
+    riskTitle.textContent=titulo;
+    riskSub.style.color='var(--muted)';
+    riskSub.textContent=sub;
+    riskBar.style.background=cor;
+    riskBar.style.width=riskPct+'%';
+
+    // Cálculos comparativos
+    const fatBase=fat||(contratos*ticket)||20000;
+    const growthFactor=hasSystem?2.2:(hasTraffic&&hasSeo?1.8:(hasTraffic||hasSeo?1.5:1.3));
+    const contratosSolo=contratos;
+    const contratosNomos=Math.round(contratos*growthFactor);
+    const fatSolo=fatBase;
+    const fatNomos=Math.round(fatBase*growthFactor);
+    const prevSolo=Math.round((1-riskScore)*100);
+    const prevNomos=Math.min(prevSolo+Math.round(riskScore*70),92);
+
+    const maxContratos=Math.max(contratosSolo,contratosNomos,1);
+    const maxFat=Math.max(fatSolo,fatNomos,1);
+
+    setBar(
+      'bar-contratos-solo','bar-contratos-nomos',
+      'val-contratos-solo','val-contratos-nomos',
+      (contratosSolo/maxContratos)*85,(contratosNomos/maxContratos)*85,
+      contratosSolo+' contratos',contratosNomos+' contratos'
+    );
+    setBar(
+      'bar-fat-solo','bar-fat-nomos',
+      'val-fat-solo','val-fat-nomos',
+      (fatSolo/maxFat)*85,(fatNomos/maxFat)*85,
+      fmt(fatSolo),fmt(fatNomos)
+    );
+    setBar(
+      'bar-prev-solo','bar-prev-nomos',
+      'val-prev-solo','val-prev-nomos',
+      prevSolo*0.85,prevNomos*0.85,
+      prevSolo+'% previsível',prevNomos+'% previsível'
+    );
+  }
+
+  calcular();
+})();
+
+function togglePlano(header){
+  var item=header.closest('.entregavel');
+  var isOpen=item.classList.contains('open');
+  item.closest('.plano-card').querySelectorAll('.entregavel.open').forEach(function(el){
+    if(el!==item)el.classList.remove('open');
+  });
+  item.classList.toggle('open',!isOpen);
+}
+</script>
+</body>
+</html>
